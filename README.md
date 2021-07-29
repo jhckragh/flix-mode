@@ -3,7 +3,7 @@
 (Unofficial) Emacs major mode that provides rudimentary font-lock (syntax
 highlighting) for the [Flix programming language](https://flix.dev).
 
-<img width="680" src="screenshot.png">
+<img width="400" src="screenshot.png">
 
 ## Installation
 

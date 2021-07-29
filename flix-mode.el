@@ -3,7 +3,7 @@
 ;; Copyright (c) 2021  Jacob Harris Cryer Kragh
 
 ;; Author: Jacob Harris Cryer Kragh <jhckragh@gmail.com>
-;; Version: 0.0.1
+;; Version: 0.0.2
 ;; Keywords: languages
 
 ;; This file is not part of GNU Emacs.
@@ -66,6 +66,21 @@
     (modify-syntax-entry ?\n "> b" st)
     st)
   "Syntax table for `flix-mode'.")
+
+(defun flix-mode--indent-further ()
+  (interactive)
+  (indent-line-to (+ (current-indentation) tab-width)))
+
+(defun flix-mode--indent-less ()
+  (interactive)
+  (indent-line-to (max 0 (- (current-indentation) tab-width))))
+
+(defvar flix-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map [tab] 'flix-mode--indent-further)
+    (define-key map [backtab] 'flix-mode--indent-less)
+    map)
+  "Keymap for `flix-mode'.")
 
 (define-derived-mode flix-mode prog-mode "Flix"
   "A major mode for editing Flix files."

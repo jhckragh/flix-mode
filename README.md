@@ -1,5 +1,7 @@
 # Flix Mode
 
+[![Version](https://img.shields.io/badge/version-0.0.1-green)]()
+
 (Unofficial) Emacs major mode that provides rudimentary font-lock (syntax
 highlighting) for the [Flix programming language](https://flix.dev).
 

@@ -67,10 +67,82 @@
     st)
   "Syntax table for `flix-mode'.")
 
+;; Indentation heuristics (BEGIN)
+
+;; TODO: Handle comments.
+;; TODO: Handle if/else.
+;; TODO: Handle function calls that span multiple lines.
+
+(defun flix-mode--brace-starts-enclosing-block-p (line-number)
+  (save-excursion
+    (condition-case nil
+        (progn
+          (forward-sexp)
+          (< line-number (line-number-at-pos)))
+      (error t))))
+
+(defun flix-mode--indent-closing-brace-line ()
+  (let ((indent 0))
+    (save-excursion
+      (end-of-line)
+      (ignore-errors
+        (backward-sexp)
+        (setq indent (current-indentation))))
+    (indent-line-to indent)))
+
+(defun flix-mode--indent-decl-line ()
+  (let ((indent 0)
+        (line-number (line-number-at-pos)))
+    (save-excursion
+      (catch 'break
+        (while t
+          (condition-case nil
+              (search-backward "{")
+            (error
+             (throw 'break nil)))
+          (when (flix-mode--brace-starts-enclosing-block-p line-number)
+            (setq indent (+ (current-indentation) tab-width))
+            (throw 'break nil)))))
+    (indent-line-to indent)))
+
+(defun flix-mode--indent-nondecl-line ()
+  (let ((indent 0)
+        (line-number (line-number-at-pos)))
+    (save-excursion
+      (catch 'break
+        (while t
+          (condition-case nil
+              (re-search-backward "{\\|\\_<def\\_>")
+            (error
+             (throw 'break nil)))
+          (when (or (looking-at "def")
+                    (and (looking-at "{")
+                         (flix-mode--brace-starts-enclosing-block-p line-number)))
+            (setq indent (+ (current-indentation) tab-width))
+            (throw 'break nil)))))
+    (indent-line-to indent)))
+
+(defun flix-mode-indent-line ()
+  (interactive)
+  (beginning-of-line)
+  (if (bobp)
+      (indent-line-to 0)
+    (let ((line (thing-at-point 'line t)))
+      (cond
+       ((string-match-p "^ *} *$" line)
+        (flix-mode--indent-closing-brace-line))
+       ((string-match-p "\\_<\\(def\\|enum\\|type\\|namespace\\|rel\\)\\_>" line)
+        (flix-mode--indent-decl-line))
+       (t
+        (flix-mode--indent-nondecl-line))))))
+
+;; Indentation heuristics (END)
+
 (define-derived-mode flix-mode prog-mode "Flix"
   "A major mode for editing Flix files."
   :syntax-table flix-mode-syntax-table
   (setq-local comment-start "//")
+  (setq-local indent-line-function 'flix-mode-indent-line)
   (setq-local font-lock-defaults '(flix-mode-font-lock-keywords)))
 
 (provide 'flix-mode)

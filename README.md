@@ -1,11 +1,13 @@
 # Flix Mode
 
-[![Version](https://img.shields.io/badge/version-0.0.2-green)]()
+[![Version](https://img.shields.io/badge/version-0.0.3-green)]()
 
-(Unofficial) Emacs major mode that provides rudimentary font-lock (syntax
-highlighting) for the [Flix programming language](https://flix.dev).
+(Unofficial) Emacs major mode that provides rudimentary syntax
+highlighting and indentation for the [Flix programming language](https://flix.dev).
 
+<div align="center">
 <img width="400" src="screenshot.png">
+</div>
 
 ## Installation
 
@@ -21,7 +23,7 @@ when you visit a `.flix` file.
 
 ## Known limitations
 
-The mode currently doesn't do indentation. You'll have to do that manually.
+The indentation heuristics are very much work in progress. They should mostly work for code that follows the style used in the official Flix examples. But multi-line function calls, lambdas, pipes etc. aren't handled, and placing comments in certain special places can cause the heuristics to indent incorrectly.
 
 ## Contributing
 

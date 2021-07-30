@@ -3,7 +3,7 @@
 ;; Copyright (c) 2021  Jacob Harris Cryer Kragh
 
 ;; Author: Jacob Harris Cryer Kragh <jhckragh@gmail.com>
-;; Version: 0.0.3
+;; Version: 0.0.4
 ;; Keywords: languages
 ;; URL: https://github.com/jhckragh/flix-mode
 

@@ -164,7 +164,7 @@ comments and strings are ignored."
       (flix-mode--goto-first-nonblank-line-above)
       (let ((neighbor (flix-mode--current-line)))
         (cond
-         ((string-match-p "[,;\\.] *$" neighbor)
+         ((string-match-p "[,:;\\.] *$" neighbor)
           (setq indent (current-indentation)))
          ((or (string-match-p "\\_<\\(def\\|if\\|else\\|case\\)\\_>" neighbor)
               (string-match-p "{ *$" neighbor))

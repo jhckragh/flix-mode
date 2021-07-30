@@ -3,7 +3,7 @@
 ;; Copyright (c) 2021  Jacob Harris Cryer Kragh
 
 ;; Author: Jacob Harris Cryer Kragh <jhckragh@gmail.com>
-;; Version: 0.0.4
+;; Version: 0.0.5
 ;; Keywords: languages
 ;; URL: https://github.com/jhckragh/flix-mode
 
@@ -97,7 +97,7 @@ comments and strings are ignored."
 
 (defun flix-mode--goto-first-nonblank-line-above ()
   (catch 'break
-    (while (not (bobp))
+    (while (> (line-number-at-pos) 1)
       (forward-line -1)
       (flix-mode--skip-syntax-forward)
       (let ((line (flix-mode--current-line)))

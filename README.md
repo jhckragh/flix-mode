@@ -13,15 +13,13 @@
 
 ## Installation
 
-Download `flix-mode.el` to a directory of your choice and then instruct
-Emacs to load it, e.g., by adding the following to your `.emacs` file:
+Download `flix-mode.el` and then do the following in Emacs:
 
-```elisp
-(load "/path/where/you/put/it/flix-mode")
-```
+<kbd>M-x package-install-file [RET] /path/to/flix-mode.el [RET]</kbd>
 
-After restarting Emacs, the mode should then automatically be enabled
-when you visit a `.flix` file.
+The built-in package manager in Emacs will then install the mode.
+
+The mode is automatically loaded when you visit a `.flix` file.
 
 ## Known limitations
 

@@ -2,12 +2,14 @@
 
 [![Version](https://img.shields.io/badge/version-0.0.3-green)]()
 
-(Unofficial) Emacs major mode that provides rudimentary syntax
-highlighting and indentation for the [Flix programming language](https://flix.dev).
+(Unofficial) Emacs major mode for the [Flix programming language](https://flix.dev).
 
-<div align="center">
 <img width="400" src="screenshot.png">
-</div>
+
+*Features:*
+
+* Syntax highlighting.
+* Automatic indentation (work in progress).
 
 ## Installation
 
@@ -23,7 +25,8 @@ when you visit a `.flix` file.
 
 ## Known limitations
 
-The indentation heuristics are very much work in progress. They should mostly work for code that follows the style used in the official Flix examples. But multi-line function calls, lambdas, pipes etc. aren't handled, and placing comments in certain special places can cause the heuristics to indent incorrectly.
+* The indentation heuristics are very much work in progress. They should mostly work for code that follows the style used in the official Flix examples. But multi-line function calls, lambdas, pipes etc. aren't handled, and placing comments in certain special places can cause the heuristics to indent incorrectly.
+* As in many other major modes, the syntax highlighting is done via regular expressions; so strange source layout can break it.
 
 ## Contributing
 

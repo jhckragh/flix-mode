@@ -71,6 +71,9 @@
 ;; TODO: Some of the regexps will break in the presence of certain kinds of comments.
 ;; TODO: Handle multi-line function calls, lambdas, pipe chains etc.
 
+(defun flix-mode--current-line ()
+  (buffer-substring-no-properties (line-beginning-position) (line-end-position)))
+
 (defun flix-mode--skip-syntax-forward ()
   (skip-syntax-forward " ")
   (when (looking-at "/\\(/\\|\\*\\)")
@@ -97,7 +100,7 @@ comments and strings are ignored."
     (while (not (bobp))
       (forward-line -1)
       (flix-mode--skip-syntax-forward)
-      (let ((line (thing-at-point 'line t)))
+      (let ((line (flix-mode--current-line)))
         (when (and (not (string-match-p "\\`[ \t\n\r]*\\'" line))
                    (not (flix-mode--point-inside-comment-p)))
           (throw 'break nil))))))
@@ -146,7 +149,7 @@ comments and strings are ignored."
   (let ((indent 0))
     (save-excursion
       (flix-mode--goto-first-nonblank-line-above)
-      (if (string-match-p "\\_<def\\_>\\|{ *$" (thing-at-point 'line t))
+      (if (string-match-p "\\_<def\\_>\\|{ *$" (flix-mode--current-line))
           (setq indent (+ (current-indentation) tab-width))
         (end-of-line)
         (ignore-errors
@@ -159,7 +162,7 @@ comments and strings are ignored."
         (line-number (line-number-at-pos)))
     (save-excursion
       (flix-mode--goto-first-nonblank-line-above)
-      (let ((neighbor (thing-at-point 'line)))
+      (let ((neighbor (flix-mode--current-line)))
         (cond
          ((string-match-p "[,;\\.] *$" neighbor)
           (setq indent (current-indentation)))
@@ -173,7 +176,7 @@ comments and strings are ignored."
   (beginning-of-line)
   (if (bobp)
       (indent-line-to 0)
-    (let ((line (thing-at-point 'line t)))
+    (let ((line (flix-mode--current-line)))
       (cond
        ((string-match-p "^ *}" line)
         (flix-mode--indent-closing-brace-line))

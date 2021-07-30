@@ -5,13 +5,9 @@
 ;; Author: Jacob Harris Cryer Kragh <jhckragh@gmail.com>
 ;; Version: 0.0.3
 ;; Keywords: languages
+;; URL: https://github.com/jhckragh/flix-mode
 
 ;; This file is not part of GNU Emacs.
-
-;;; Commentary:
-
-;; Provides rudimentary font-lock (syntax highlighting) for the Flix
-;; programming language (https://flix.dev).
 
 ;;; License:
 
@@ -28,9 +24,12 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-;;; Code:
+;;; Commentary:
 
-(add-to-list 'auto-mode-alist '("\\.flix\\'" . flix-mode))
+;; Unofficial major mode for the Flix programming language (https://flix.dev).
+;; Provides rudimentary syntax highlighting and indentation.
+
+;;; Code:
 
 (defconst flix-mode-keywords
   '("as" "alias" "and" "case" "chan" "choose" "class" "def" "deref" "else"
@@ -189,6 +188,7 @@ comments and strings are ignored."
 
 ;; Indentation heuristics (END)
 
+;;;###autoload
 (define-derived-mode flix-mode prog-mode "Flix"
   "A major mode for editing Flix files."
   :syntax-table flix-mode-syntax-table
@@ -198,4 +198,9 @@ comments and strings are ignored."
   (setq-local indent-line-function 'flix-mode-indent-line)
   (setq-local font-lock-defaults '(flix-mode-font-lock-keywords)))
 
+;;;###autoload
+(add-to-list 'auto-mode-alist '("\\.flix\\'" . flix-mode))
+
 (provide 'flix-mode)
+
+;;; flix-mode.el ends here

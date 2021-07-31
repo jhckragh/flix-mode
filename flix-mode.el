@@ -212,7 +212,8 @@ comments and strings are ignored."
   (setq-local comment-start-skip "\\(//+\\|/\\*+\\) *")
   (setq-local comment-end "")
   (setq-local indent-line-function 'flix-mode-indent-line)
-  (setq-local font-lock-defaults '(flix-mode-font-lock-keywords)))
+  (setq-local font-lock-defaults '(flix-mode-font-lock-keywords))
+  (add-to-list 'electric-indent-chars ?\}))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.flix\\'" . flix-mode))

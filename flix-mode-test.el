@@ -166,20 +166,20 @@ def g(): Unit & Impure =
     }
 "))
 
-;; (ert-deftest flix-mode--program-2 () ;; TODO: This doesn't pass because of the comment!
-;;   (flix-mode--indent-test-helper
-;;    "
-;; def main(_args: Array[String]): Int32 & Impure =
-;;     println(fac(5)); // 120
-;;     0
+(ert-deftest flix-mode--program-2 ()
+  (flix-mode--indent-test-helper
+   "
+def main(_args: Array[String]): Int32 & Impure =
+    println(fac(5)); // 120
+    0
 
-;; def fac(n: Int32): Int32 = facAcc(n, 1)
+def fac(n: Int32): Int32 = facAcc(n, 1)
 
-;; def facAcc(n: Int32, acc: Int32): Int32 = match n {
-;;     case 0 => acc
-;;     case _ => facAcc(n - 1, n * acc)
-;; }
-;; "))
+def facAcc(n: Int32, acc: Int32): Int32 = match n {
+    case 0 => acc
+    case _ => facAcc(n - 1, n * acc)
+}
+"))
 
 (ert-deftest flix-mode--program-3 ()
   (flix-mode--indent-test-helper
@@ -398,16 +398,16 @@ def main(_args: Array[String]): Int32 & Impure =
 def f(): Int32 & Pure = 42
 "))
 
-;; (ert-deftest flix-mode--program-9 () ;; TODO: This doesn't pass because of the def inside the comment!
-;;   (flix-mode--indent-test-helper
-;;    "// def f(y: Int32): Int32 = y + 1
+(ert-deftest flix-mode--program-9 ()
+  (flix-mode--indent-test-helper
+   "// def f(y: Int32): Int32 = y + 1
 
-;; /* what */
+/* what */
 
-;; def main(_args: Array[String]): Int32 & Impure =
-;;     let x = 41;
-;;     let f = y -> y + 1;
-;;     let z = f(x);
-;;     println(z);
-;;     0
-;; "))
+def main(_args: Array[String]): Int32 & Impure =
+    let x = 41;
+    let f = y -> y + 1;
+    let z = f(x);
+    println(z);
+    0
+"))

@@ -31,6 +31,8 @@
 
 ;;; Code:
 
+(require 'subr-x)
+
 (defconst flix-mode-keywords
   '("as" "alias" "and" "case" "chan" "choose" "class" "def" "deref" "else"
     "enum" "false" "forall" "force" "from" "get" "if" "import" "instance"
@@ -85,6 +87,15 @@
 (defun flix-mode--point-inside-string-p ()
   (nth 3 (syntax-ppss)))
 
+(defun flix-mode--clean-string (string)
+  "Strips Flix comments from STRING."
+  (let ((s (replace-regexp-in-string "/\\*.*?\\*/" "" string)))
+    (replace-regexp-in-string "//.**$" "" s)))
+
+(defun flix-mode--string-match-p (regexp string)
+  "Works the same as `string-match-p' but ignores comments."
+  (string-match-p regexp (flix-mode--clean-string string)))
+
 (defun flix-mode--re-search-backward (regexp)
   "Works the same as `re-search-backward' except matches inside
 comments and strings are ignored."
@@ -101,7 +112,7 @@ comments and strings are ignored."
       (forward-line -1)
       (flix-mode--skip-syntax-forward)
       (let ((line (flix-mode--current-line)))
-        (when (and (not (string-match-p "\\`[ \t\n\r]*\\'" line))
+        (when (and (not (string-blank-p line))
                    (not (flix-mode--point-inside-comment-p)))
           (throw 'break nil))))))
 
@@ -149,7 +160,7 @@ comments and strings are ignored."
   (let ((indent 0))
     (save-excursion
       (flix-mode--goto-first-nonblank-line-above)
-      (if (string-match-p "\\_<def\\_>\\|{ *$" (flix-mode--current-line))
+      (if (flix-mode--string-match-p "\\_<def\\_>\\|{ *$" (flix-mode--current-line))
           (setq indent (+ (current-indentation) tab-width))
         (end-of-line)
         (ignore-errors
@@ -164,10 +175,10 @@ comments and strings are ignored."
       (flix-mode--goto-first-nonblank-line-above)
       (let ((neighbor (flix-mode--current-line)))
         (cond
-         ((string-match-p "\\([,:;\\.]\\||>\\) *$" neighbor)
+         ((flix-mode--string-match-p "\\([,:;\\.]\\||>\\) *$" neighbor)
           (setq indent (current-indentation)))
-         ((or (string-match-p "\\_<\\(def\\|if\\|else\\|case\\)\\_>" neighbor)
-              (string-match-p "{ *$" neighbor))
+         ((or (flix-mode--string-match-p "\\_<\\(def\\|if\\|else\\|case\\)\\_>" neighbor)
+              (flix-mode--string-match-p "{ *$" neighbor))
           (setq indent (+ (current-indentation) tab-width))))))
     (indent-line-to indent)))
 
@@ -178,13 +189,13 @@ comments and strings are ignored."
       (indent-line-to 0)
     (let ((line (flix-mode--current-line)))
       (cond
-       ((string-match-p "^ *}" line)
+       ((flix-mode--string-match-p "^ *}" line)
         (flix-mode--indent-closing-brace-line))
-       ((string-match-p "\\_<\\(def\\|enum\\|type\\|namespace\\|rel\\)\\_>" line)
+       ((flix-mode--string-match-p "\\_<\\(def\\|enum\\|type\\|namespace\\|rel\\)\\_>" line)
         (flix-mode--indent-decl-line))
-       ((string-match-p "\\_<case\\_>" line)
+       ((flix-mode--string-match-p "\\_<case\\_>" line)
         (flix-mode--indent-case-line))
-       ((string-match-p "^ *else" line)
+       ((flix-mode--string-match-p "^ *else" line)
         (flix-mode--indent-else-line))
        (t
         (flix-mode--indent-nondecl-line))))))

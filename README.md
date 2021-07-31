@@ -1,6 +1,6 @@
 # Flix Mode
 
-[![Version](https://img.shields.io/badge/version-0.0.6-green)]()
+[![Version](https://img.shields.io/badge/version-0.0.7-green)]()
 
 Unofficial Emacs major mode for the [Flix programming language](https://flix.dev).
 

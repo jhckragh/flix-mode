@@ -142,6 +142,15 @@ namespace Bar {
 }
 "))
 
+(ert-deftest flix-mode--indent-multi-line-call ()
+  (flix-mode--indent-test-helper
+   "def main(_args: Array[String]): Int32 & Impure =
+    println(
+        \"Hello World!\"
+    );
+    0
+"))
+
 (ert-deftest flix-mode--program-1 ()
   (flix-mode--indent-test-helper
    "

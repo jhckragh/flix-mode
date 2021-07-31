@@ -3,7 +3,7 @@
 ;; Copyright (c) 2021  Jacob Harris Cryer Kragh
 
 ;; Author: Jacob Harris Cryer Kragh <jhckragh@gmail.com>
-;; Version: 0.0.5
+;; Version: 0.0.6
 ;; Keywords: languages
 ;; URL: https://github.com/jhckragh/flix-mode
 
@@ -164,7 +164,7 @@ comments and strings are ignored."
       (flix-mode--goto-first-nonblank-line-above)
       (let ((neighbor (flix-mode--current-line)))
         (cond
-         ((string-match-p "[,:;\\.] *$" neighbor)
+         ((string-match-p "\\([,:;\\.]\\||>\\) *$" neighbor)
           (setq indent (current-indentation)))
          ((or (string-match-p "\\_<\\(def\\|if\\|else\\|case\\)\\_>" neighbor)
               (string-match-p "{ *$" neighbor))

@@ -203,7 +203,11 @@ comments and strings are ignored."
               (setq indent (+ (current-indentation) tab-width)))))
          ((flix-mode--string-match-p "^ *else *$" neighbor)
           (setq indent (+ (current-indentation) tab-width)))
-         ((flix-mode--string-match-p "\\_<\\(def\\|case\\)\\_>" neighbor)
+         ((and (flix-mode--string-match-p "^ *\\(pub\\)? *def *" neighbor)
+               (flix-mode--string-match-p "= *$" neighbor))
+          (setq indent (+ (current-indentation) tab-width)))
+         ((and (flix-mode--string-match-p "^ *case" neighbor)
+               (flix-mode--string-match-p "=> *$" neighbor))
           (setq indent (+ (current-indentation) tab-width)))
          (t
           (let ((block-indent (flix-mode--current-block-indent)))

@@ -232,7 +232,7 @@ namespace Input {
 }
 
 enum Aop { case Plus, Minus }
-    
+
 enum Aexp {
     case Literal(Int32),
     case Binary(Aexp, Aop, Aexp),
@@ -419,4 +419,59 @@ def main(_args: Array[String]): Int32 & Impure =
     let z = f(x);
     println(z);
     0
+"))
+
+(ert-deftest flix-mode--program-10 ()
+  (flix-mode--indent-test-helper
+   "
+def secret(x: Int32): Bool = match x {
+    case 42 => true
+    case _ => if (x % 400 == 0) true else false
+}
+
+namespace Time {
+
+    pub enum Weekday {
+        case Monday,
+        case Tuesday,
+        case Wednesday,
+        case Thursday,
+        case Friday
+    }
+
+    // A comment
+
+    pub def dayToInt(wd: Weekday): Int32 = match wd {
+        case Monday => 0
+        case Tuesday => 1
+        case Wednesday => 2
+        case Thursday => 3
+        case Friday => 4
+    }
+
+    // Another comment
+
+    pub def getMonday(): Weekday =
+        Monday
+
+    // This comment is indented correctly...
+    
+    pub def getFriday(): Weekday = Friday
+
+    // This comment is indented incorrectly!
+}
+
+type alias Wd = Time.Weekday
+
+def d2i(wd: Wd): Int32 = Time.dayToInt(wd)
+
+// This comment is indented incorrectly!
+def main(_args: Array[String]): Int32 & Impure =
+    let m = Time.getMonday();
+    let f = Time.getFriday();
+    let delta = d2i(f) - d2i(m);
+    println(\"Delta from monday to friday: ${delta}\");
+    println(\"Secret? ${secret(d2i(f))}\");
+    0
+
 "))

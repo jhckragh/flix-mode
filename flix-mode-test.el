@@ -211,11 +211,11 @@ namespace Input {
             0
     }
 
-/*
-{
+    /*
+    {
 
-}
-*/
+    }
+    */
 
     pub def openStdin(): Stdin & Impure =
         import new java.util.Scanner(##java.io.InputStream) as newScanner;

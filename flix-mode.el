@@ -133,6 +133,21 @@ comments and strings are ignored."
         (setq indent (current-indentation))))
     (indent-line-to indent)))
 
+(defun flix-mode--current-block-indent ()
+  (let ((indent (- tab-width))
+        (line-number (line-number-at-pos)))
+    (save-excursion
+      (catch 'break
+        (while t
+          (condition-case nil
+              (flix-mode--re-search-backward "{")
+            (error
+             (throw 'break nil)))
+          (when (flix-mode--brace-starts-enclosing-block-p line-number)
+            (setq indent (current-indentation))
+            (throw 'break nil)))))
+  indent))
+
 (defun flix-mode--indent-decl-line ()
   (let ((indent 0)
         (line-number (line-number-at-pos)))
@@ -189,7 +204,10 @@ comments and strings are ignored."
          ((flix-mode--string-match-p "^ *else *$" neighbor)
           (setq indent (+ (current-indentation) tab-width)))
          ((flix-mode--string-match-p "\\_<\\(def\\|case\\)\\_>" neighbor)
-          (setq indent (+ (current-indentation) tab-width))))))
+          (setq indent (+ (current-indentation) tab-width)))
+         (t
+          (let ((block-indent (flix-mode--current-block-indent)))
+            (setq indent (+ block-indent tab-width)))))))
     (indent-line-to indent)))
 
 (defun flix-mode-indent-line ()

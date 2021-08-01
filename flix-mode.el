@@ -169,18 +169,26 @@ comments and strings are ignored."
     (indent-line-to indent)))
 
 (defun flix-mode--indent-nondecl-line ()
-  (let ((indent 0)
-        (line-number (line-number-at-pos)))
+  (let ((indent 0))
     (save-excursion
       (flix-mode--goto-first-nonblank-line-above)
       (let ((neighbor (flix-mode--current-line)))
         (cond
-         ((flix-mode--string-match-p "( *$" neighbor)
+         ((flix-mode--string-match-p "[({] *$" neighbor)
           (setq indent (+ (current-indentation) tab-width)))
          ((flix-mode--string-match-p "\\([,:;\\.]\\||>\\) *$" neighbor)
           (setq indent (current-indentation)))
-         ((or (flix-mode--string-match-p "\\_<\\(def\\|if\\|else\\|case\\)\\_>" neighbor)
-              (flix-mode--string-match-p "{ *$" neighbor))
+         ((flix-mode--string-match-p "^ *if *(" neighbor)
+          (beginning-of-line)
+          (search-forward "(")
+          (backward-char)
+          (forward-sexp)
+          (let ((after-condition (buffer-substring-no-properties (point) (line-end-position))))
+            (when (flix-mode--string-match-p "^ *$" after-condition)
+              (setq indent (+ (current-indentation) tab-width)))))
+         ((flix-mode--string-match-p "^ *else *$" neighbor)
+          (setq indent (+ (current-indentation) tab-width)))
+         ((flix-mode--string-match-p "\\_<\\(def\\|case\\)\\_>" neighbor)
           (setq indent (+ (current-indentation) tab-width))))))
     (indent-line-to indent)))
 
@@ -200,7 +208,8 @@ comments and strings are ignored."
        ((flix-mode--string-match-p "^ *else" line)
         (flix-mode--indent-else-line))
        (t
-        (flix-mode--indent-nondecl-line))))))
+        (flix-mode--indent-nondecl-line)))
+      (end-of-line))))
 
 ;; Indentation heuristics (END)
 

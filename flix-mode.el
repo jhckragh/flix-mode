@@ -35,20 +35,21 @@
 
 (defconst flix-mode-keywords
   '("as" "alias" "and" "case" "chan" "choose" "class" "def" "deref" "else"
-    "enum" "false" "forall" "force" "from" "get" "if" "import" "instance"
+    "enum" "forall" "force" "from" "get" "if" "import" "instance"
     "inline" "into" "lat" "law" "let" "lawless" "lazy" "main" "match"
     "namespace" "null" "not" "new" "opaque" "or" "override" "project"
     "pub" "Pure" "query" "Record" "ref" "rel" "Schema" "sealed" "select"
-    "set" "solve" "spawn" "true" "type" "unlawful" "use" "with" "where")
+    "set" "solve" "spawn" "type" "unlawful" "use" "with" "where")
   "Keywords recognized by `flix-mode'.")
 
 (defvar flix-mode-font-lock-keywords
-  `(("\\_<\\(Impure\\)\\_>" (0 font-lock-warning-face))
-    ("\\_<\\(Pure\\)\\_>" (0 font-lock-function-name-face))
-    ("def +\\([_[:lower:]][_[:alnum:]]*\\)" (1 font-lock-function-name-face))
+  `(("\\_<Impure\\_>" (0 font-lock-warning-face))
+    ("\\_<Pure\\_>" (0 font-lock-function-name-face))
+    ("\\_<\\(true\\|false\\)\\_>" (0 font-lock-builtin-face))
+    ("def[ \t]+\\([_[:lower:]][_[:alnum:]]*\\)" (1 font-lock-function-name-face))
     ("\\_<\\([_[:lower:]][_[:alnum:]]*\\) *:" (1 font-lock-variable-name-face))
     ("\\_<\\([_[:upper:]][_[:alnum:]]*\\)\\_>" (0 font-lock-type-face))
-    ("let +\\([_[:lower:]][_[:alnum:]]*\\)" (1 font-lock-variable-name-face))
+    ("let[ \t]+\\([_[:lower:]][_[:alnum:]]*\\)" (1 font-lock-variable-name-face))
     (,(concat "\\_<" (regexp-opt flix-mode-keywords) "\\_>") (0 font-lock-keyword-face)))
   "Keyword highlighting for `flix-mode'.")
 
@@ -70,7 +71,6 @@
 
 ;; Indentation heuristics (BEGIN)
 
-;; TODO: Some of the regexps will break in the presence of certain kinds of comments.
 ;; TODO: Handle multi-line function calls, lambdas, pipe chains etc.
 
 (defun flix-mode--current-line ()

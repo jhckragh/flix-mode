@@ -3,7 +3,7 @@
 ;; Copyright (c) 2021  Jacob Harris Cryer Kragh
 
 ;; Author: Jacob Harris Cryer Kragh <jhckragh@gmail.com>
-;; Version: 0.0.7
+;; Version: 0.0.8
 ;; Keywords: languages
 ;; URL: https://github.com/jhckragh/flix-mode
 
@@ -27,11 +27,9 @@
 ;;; Commentary:
 
 ;; Unofficial major mode for the Flix programming language (https://flix.dev).
-;; Provides rudimentary syntax highlighting and indentation.
+;; Provides rudimentary syntax highlighting and some indentation support.
 
 ;;; Code:
-
-(require 'subr-x)
 
 (defconst flix-mode-keywords
   '("as" "alias" "and" "case" "chan" "choose" "class" "def" "deref" "else"
@@ -69,180 +67,48 @@
     st)
   "Syntax table for `flix-mode'.")
 
-;; Indentation heuristics (BEGIN)
+(defcustom flix-mode-tab-width 4
+  "The tab width to use for indentation.")
 
-;; TODO: Handle multi-line function calls, lambdas, pipe chains etc.
-
-(defun flix-mode--current-line ()
-  (buffer-substring-no-properties (line-beginning-position) (line-end-position)))
-
-(defun flix-mode--skip-syntax-forward ()
-  (skip-syntax-forward " ")
-  (when (looking-at "/\\(/\\|\\*\\)")
-    (forward-char 2)))
-
-(defun flix-mode--point-inside-comment-p ()
-  (nth 4 (syntax-ppss)))
-
-(defun flix-mode--point-inside-string-p ()
-  (nth 3 (syntax-ppss)))
-
-(defun flix-mode--clean-string (string)
-  "Strips Flix comments from STRING."
-  (let ((s (replace-regexp-in-string "/\\*.*?\\*/" "" string)))
-    (replace-regexp-in-string "//.**$" "" s)))
-
-(defun flix-mode--string-match-p (regexp string)
-  "Works the same as `string-match-p' but ignores comments."
-  (string-match-p regexp (flix-mode--clean-string string)))
-
-(defun flix-mode--re-search-backward (regexp)
-  "Works the same as `re-search-backward' except matches inside
-comments and strings are ignored."
-  (catch 'break
-    (while t
-      (re-search-backward regexp)
-      (when (and (not (flix-mode--point-inside-comment-p))
-                 (not (flix-mode--point-inside-string-p)))
-        (throw 'break nil)))))
-
-(defun flix-mode--goto-first-nonblank-line-above ()
-  (catch 'break
-    (while (> (line-number-at-pos) 1)
-      (forward-line -1)
-      (flix-mode--skip-syntax-forward)
-      (let ((line (flix-mode--current-line)))
-        (when (and (not (string-blank-p line))
-                   (not (flix-mode--point-inside-comment-p)))
-          (throw 'break nil))))))
-
-(defun flix-mode--brace-starts-enclosing-block-p (line-number)
-  (save-excursion
-    (condition-case nil
-        (progn
-          (forward-sexp)
-          (< line-number (line-number-at-pos)))
-      (error t))))
-
-(defun flix-mode--indent-closing-brace-line ()
-  (let ((indent 0))
-    (save-excursion
-      (end-of-line)
-      (ignore-errors
-        (backward-sexp)
-        (setq indent (current-indentation))))
-    (indent-line-to indent)))
-
-(defun flix-mode--current-block-indent ()
-  (let ((indent (- tab-width))
-        (line-number (line-number-at-pos)))
-    (save-excursion
-      (catch 'break
-        (while t
-          (condition-case nil
-              (flix-mode--re-search-backward "{")
-            (error
-             (throw 'break nil)))
-          (when (flix-mode--brace-starts-enclosing-block-p line-number)
-            (setq indent (current-indentation))
-            (throw 'break nil)))))
-  indent))
-
-(defun flix-mode--indent-decl-line ()
-  (let ((indent 0)
-        (line-number (line-number-at-pos)))
-    (save-excursion
-      (catch 'break
-        (while t
-          (condition-case nil
-              (flix-mode--re-search-backward "{")
-            (error
-             (throw 'break nil)))
-          (when (flix-mode--brace-starts-enclosing-block-p line-number)
-            (setq indent (+ (current-indentation) tab-width))
-            (throw 'break nil)))))
-    (indent-line-to indent)))
-
-(defun flix-mode--indent-else-line ()
-  (let ((indent 0))
-    (save-excursion
-      (ignore-errors
-        (flix-mode--re-search-backward "\\_<if\\_>")
-        (setq indent (current-indentation))))
-    (indent-line-to indent)))
-
-(defun flix-mode--indent-case-line ()
-  (let ((indent 0))
-    (save-excursion
-      (flix-mode--goto-first-nonblank-line-above)
-      (if (flix-mode--string-match-p "\\_<def\\_>\\|{ *$" (flix-mode--current-line))
-          (setq indent (+ (current-indentation) tab-width))
-        (end-of-line)
-        (ignore-errors
-          (flix-mode--re-search-backward "\\_<case\\_>")
-          (setq indent (current-indentation)))))
-    (indent-line-to indent)))
-
-(defun flix-mode--indent-nondecl-line ()
-  (let ((indent 0))
-    (save-excursion
-      (flix-mode--goto-first-nonblank-line-above)
-      (let ((neighbor (flix-mode--current-line)))
-        (cond
-         ((flix-mode--string-match-p "[({] *$" neighbor)
-          (setq indent (+ (current-indentation) tab-width)))
-         ((flix-mode--string-match-p "\\([,:;\\.]\\||>\\) *$" neighbor)
-          (setq indent (current-indentation)))
-         ((flix-mode--string-match-p "^ *if *(" neighbor)
-          (beginning-of-line)
-          (search-forward "(")
-          (backward-char)
-          (forward-sexp)
-          (let ((after-condition (buffer-substring-no-properties (point) (line-end-position))))
-            (when (flix-mode--string-match-p "^ *$" after-condition)
-              (setq indent (+ (current-indentation) tab-width)))))
-         ((flix-mode--string-match-p "^ *else *$" neighbor)
-          (setq indent (+ (current-indentation) tab-width)))
-         ((and (flix-mode--string-match-p "^ *\\(pub\\)? *def *" neighbor)
-               (flix-mode--string-match-p "= *$" neighbor))
-          (setq indent (+ (current-indentation) tab-width)))
-         ((and (flix-mode--string-match-p "^ *case" neighbor)
-               (flix-mode--string-match-p "=> *$" neighbor))
-          (setq indent (+ (current-indentation) tab-width)))
-         (t
-          (let ((block-indent (flix-mode--current-block-indent)))
-            (setq indent (+ block-indent tab-width)))))))
-    (indent-line-to indent)))
-
-(defun flix-mode-indent-line ()
+(defun flix-mode--indent-further ()
   (interactive)
-  (beginning-of-line)
-  (if (bobp)
-      (indent-line-to 0)
-    (let ((line (flix-mode--current-line)))
-      (cond
-       ((flix-mode--string-match-p "^ *\\(}\\|)\\)" line)
-        (flix-mode--indent-closing-brace-line))
-       ((flix-mode--string-match-p "\\_<\\(def\\|enum\\|type\\|namespace\\|rel\\)\\_>" line)
-        (flix-mode--indent-decl-line))
-       ((flix-mode--string-match-p "\\_<case\\_>" line)
-        (flix-mode--indent-case-line))
-       ((flix-mode--string-match-p "^ *else" line)
-        (flix-mode--indent-else-line))
-       (t
-        (flix-mode--indent-nondecl-line)))
-      (end-of-line))))
+  (let ((new-indent (+ (current-indentation) flix-mode-tab-width)))
+    (if (> (current-column) (current-indentation))
+        (save-excursion (indent-line-to new-indent))
+      (indent-line-to new-indent))))
 
-;; Indentation heuristics (END)
+(defun flix-mode--indent-less ()
+  (interactive)
+  (save-excursion
+    (indent-line-to (max 0 (- (current-indentation) flix-mode-tab-width)))))
+
+(defun flix-mode--newline-and-maybe-indent ()
+  (interactive)
+  (let ((indent-further (and (eolp) (looking-back "[{(=]")))
+        (prev-indent (current-indentation)))
+    (newline)
+    (if indent-further
+        (indent-line-to (+ prev-indent flix-mode-tab-width))
+      (indent-line-to prev-indent))))
+
+(defvar flix-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "\C-m" 'flix-mode--newline-and-maybe-indent)
+    (define-key map [return] 'flix-mode--newline-and-maybe-indent)
+    (define-key map "\C-j" 'flix-mode--newline-and-maybe-indent)
+    (define-key map [tab] 'flix-mode--indent-further)
+    (define-key map [backtab] 'flix-mode--indent-less)
+    map)
+  "Keymap for `flix-mode'.")
 
 ;;;###autoload
 (define-derived-mode flix-mode prog-mode "Flix"
   "A major mode for editing Flix files."
   :syntax-table flix-mode-syntax-table
+  (setq-local indent-tabs-mode nil)
   (setq-local comment-start "//")
   (setq-local comment-start-skip "\\(//+\\|/\\*+\\) *")
   (setq-local comment-end "")
-  (setq-local indent-line-function 'flix-mode-indent-line)
   (setq-local font-lock-defaults '(flix-mode-font-lock-keywords))
   (add-to-list 'electric-indent-chars ?\}))
 

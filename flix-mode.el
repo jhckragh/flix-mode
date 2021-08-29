@@ -44,10 +44,10 @@
   `(("\\_<Impure\\_>" (0 font-lock-warning-face))
     ("\\_<Pure\\_>" (0 font-lock-function-name-face))
     ("\\_<\\(true\\|false\\)\\_>" (0 font-lock-builtin-face))
-    ("def[ \t]+\\([_[:lower:]][_[:alnum:]]*\\)" (1 font-lock-function-name-face))
+    ("def[ \t]+\\([_[:lower:]][_![:alnum:]]*\\)" (1 font-lock-function-name-face))
+    ("let[ \t]+\\([_[:lower:]][_[:alnum:]]*\\)" (1 font-lock-variable-name-face))
     ("\\_<\\([_[:lower:]][_[:alnum:]]*\\) *:" (1 font-lock-variable-name-face))
     ("\\_<\\([_[:upper:]][_[:alnum:]]*\\)\\_>" (0 font-lock-type-face))
-    ("let[ \t]+\\([_[:lower:]][_[:alnum:]]*\\)" (1 font-lock-variable-name-face))
     (,(concat "\\_<" (regexp-opt flix-mode-keywords) "\\_>") (0 font-lock-keyword-face)))
   "Keyword highlighting for `flix-mode'.")
 

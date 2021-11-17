@@ -108,7 +108,7 @@ namespace Parsing {
                     let op = operatorFromString(head);
                     parseAdditiveHelper(Binary(acc, op, exp), tokensAfterExp)
                 })
-            case _ => Ok((acc, tokens))
+            case _ => ??? //Ok((acc, tokens))
         }
 
     def parseMultiplicative(tokens: List[String]): Result[Progress, String] =

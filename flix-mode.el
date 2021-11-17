@@ -3,7 +3,7 @@
 ;; Copyright (c) 2021  Jacob Harris Cryer Kragh
 
 ;; Author: Jacob Harris Cryer Kragh <jhckragh@gmail.com>
-;; Version: 0.0.8
+;; Version: 0.0.9
 ;; Keywords: languages
 ;; URL: https://github.com/jhckragh/flix-mode
 
@@ -32,21 +32,23 @@
 ;;; Code:
 
 (defconst flix-mode-keywords
-  '("as" "alias" "and" "case" "chan" "choose" "class" "def" "deref" "else"
-    "enum" "forall" "force" "from" "get" "if" "import" "instance"
-    "inline" "into" "lat" "law" "let" "lawless" "lazy" "main" "match"
-    "namespace" "null" "not" "new" "opaque" "or" "override" "project"
-    "pub" "Pure" "query" "Record" "ref" "rel" "Schema" "sealed" "select"
-    "set" "solve" "spawn" "type" "unlawful" "use" "with" "where")
+  '("alias" "and" "as" "case" "catch" "chan" "choose" "class" "def"
+    "default" "deref" "else" "enum" "exists" "false" "forall" "force"
+    "from" "get" "if" "import" "inline" "instance" "into" "lat" "law"
+    "lawless" "lazy" "let" "match" "matchEff" "mut" "namespace" "new"
+    "not" "opaque" "or" "override" "project" "pub" "query" "ref"
+    "reifyBool" "reifyEff" "reifyType" "rel" "scoped" "sealed" "select"
+    "set" "solve" "spawn" "true" "try" "type" "unlawful" "use" "where"
+    "with")
   "Keywords recognized by `flix-mode'.")
 
 (defvar flix-mode-font-lock-keywords
-  `(("\\_<Impure\\_>" (0 font-lock-warning-face))
+  `(("\\_<Impure\\|null\\_>\\|\\?\\?\\?\\|\\?[_[:lower:]][_[:alnum:]]*" (0 font-lock-warning-face))
     ("\\_<Pure\\_>" (0 font-lock-function-name-face))
     ("\\_<\\(true\\|false\\)\\_>" (0 font-lock-builtin-face))
     ("def[ \t]+\\([_[:lower:]][_![:alnum:]]*\\)" (1 font-lock-function-name-face))
-    ("let[ \t]+\\([_[:lower:]][_[:alnum:]]*\\)" (1 font-lock-variable-name-face))
-    ("\\_<\\([_[:lower:]][_[:alnum:]]*\\) *:" (1 font-lock-variable-name-face))
+    ("let\\*?[ \t]+\\([_[:lower:]][_[:alnum:]]*\\)" (1 font-lock-variable-name-face))
+    ("\\_<\\([_[:lower:]][_[:alnum:]]*\\)[ \t]*:[ \t_[:upper:]]" (1 font-lock-variable-name-face))
     ("\\_<\\([_[:upper:]][_[:alnum:]]*\\)\\_>" (0 font-lock-type-face))
     (,(concat "\\_<" (regexp-opt flix-mode-keywords) "\\_>") (0 font-lock-keyword-face)))
   "Keyword highlighting for `flix-mode'.")
